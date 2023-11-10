@@ -1,92 +1,102 @@
 #include <iostream>
 #include <string>
-#include <utility>
-#include <vector>
-#include <algorithm>
+
+using namespace std;
 
 class Seat {
 private:
-    std::string seatNumber;
+    string seatNumber;
     int price;
-    bool isAvailable;
+    bool isOccupied;
 
 public:
-    Seat(std::string  number, int price, bool available)
-            : seatNumber(std::move(number)), price(price), isAvailable(available) {}
+    Seat(string number, double seatPrice) : seatNumber(number), price(seatPrice), isOccupied(false) {}
 
-    const std::string& getSeatNumber() const {
+    string getSeatNumber() const {
         return seatNumber;
     }
 
-    int getSeatPrice() const {
+    double getPrice() const {
         return price;
     }
 
-    bool isSeatAvailable() const {
-        return isAvailable;
+    bool getIsOccupied() const {
+        return isOccupied;
     }
 
-    bool bookSeat() {
-        return isAvailable = false;
+    void occupySeat() {
+        isOccupied = true;
+    }
+
+    void freeSeat() {
+        isOccupied = false;
     }
 };
 
-class AirFlight {
+class Airplane {
 private:
-    std::string date;
-    std::string flightNumber;
     int totalSeats;
-    std::vector<Seat> availableSeats;
+    string flightNumber;
+    string date;
+    vector<Seat> seats;
 
 public:
-    AirFlight(std::string  date, std::string  flightNumber, int seats, const std::vector<Seat>& available)
-            : date(std::move(date)), flightNumber(std::move(flightNumber)), totalSeats(seats), availableSeats(available) {}
+    Airplane(int seatsCount, const string& flight, const string& flightDate)
+            : totalSeats(seatsCount), flightNumber(flight), date(flightDate) {}
 
-    const std::string& getDate() const {
-        return date;
+    int getTotal() const {
+        return totalSeats;
     }
 
-    const std::string& getFlightNumber() const {
+    string getFlight() const {
         return flightNumber;
     }
 
-    std::vector<Seat> getAvailableSeats() const {
-        std::vector<Seat> result;
-        std::copy_if(availableSeats.begin(), availableSeats.end(), std::back_inserter(result),
-                     [](const Seat& seat) { return seat.isSeatAvailable(); });
-        return result;
+    string getDate() const {
+        return date;
     }
 };
 
 class Ticket {
-    int id;
-    std::string date;
-    std::string flightNumber;
-    std::string passengerName;
-    Seat seat;
+private:
+    string flightNumber;
+    string date;
+    string seatNumber;
+    string passengerName;
+    int ticketId;
 
 public:
-    Ticket(const std::string& date, const std::string& flightNumber, const std::string& passengerName, Seat seat, const int id)
-            : date(date), flightNumber(flightNumber), passengerName(passengerName), seat(std::move(seat)), id(id) {}
+    Ticket(const string& flight, const string& ticketDate, string& seat, const string& passenger, int id)
+            : flightNumber(flight), date(ticketDate), seatNumber(seat), passengerName(passenger), ticketId(id) {}
+
+    string getFlight() const{
+        return flightNumber;
+    }
+
+    string getDate() const{
+        return date;
+    }
+
+    string getSeatNum() const {
+        return seatNumber;
+    }
+
+    string getPassengerName() const {
+        return passengerName;
+    }
 
     int getID() const {
-        return id;
+        return ticketId;
+    }
+
+    void displayTicketInfo() const {
+        cout << "Ticket Information:\n";
+        cout << "Flight Number: " << flightNumber << "\n";
+        cout << "Date: " << date << "\n";
+        cout << "Seat Number: " << seatNumber << "\n";
+        cout << "Passenger Name: " << passengerName << "\n";
+        cout << "Ticket ID: " << ticketId << "\n";
     }
 };
 
 
-class Passenger{
-    std::string name;
-    std::vector<Ticket> tickets;
-
-public:
-    Passenger(const std::string& name): name(name){}
-
-    void addTicket(const Ticket& ticket) {
-        tickets.push_back(ticket);
-    }
-
-    std::string getName() const {
-        return name;
-    }
-};
