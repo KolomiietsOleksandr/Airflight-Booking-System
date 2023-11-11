@@ -306,6 +306,13 @@ private:
         for (auto& airplane : airplanes) {
             if (airplane.getDate() == flightDate && airplane.getFlight() == flightNumber) {
                 flightFound = true;
+                
+                for (const auto& bookedTicket : airplane.getTickets()) {
+                    if (bookedTicket.getSeatNum() == seatNumber) {
+                        cout << "Seat " << seatNumber << " is already booked.\n";
+                        return;
+                    }
+                }
 
                 if (airplane.bookSeat(seatNumber, passengerName, ticketId)) {
                     cout << "Confirmed with ID " << ticketId << "\n";
