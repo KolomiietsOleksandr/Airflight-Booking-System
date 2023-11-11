@@ -164,22 +164,75 @@ public:
     }
 };
 
-int main() {
-    vector<Airplane> airplanes = ConfigReader::readConfig("config.txt");
+class Processes {
+private:
+    vector<Airplane> airplanes;
 
-    for (const auto& airplane : airplanes) {
-        cout << "Airplane Information:\n";
-        cout << "Flight Number: " << airplane.getFlight() << "\n";
-        cout << "Date: " << airplane.getDate() << "\n";
+public:
+    void initialize() {
+        string filename = "config.txt";
 
-        vector<Seat> seats = airplane.getSeats();
-
-        cout << "Seat Information:\n";
-        for (const auto& seat : seats) {
-            cout << "Seat Number: " << seat.getSeatNumber() << " | Price: $" << seat.getPrice() << " | Booked:" << seat.getIsBookedAsString() << "\n";
-        }
-        cout << "\n";
+        airplanes = ConfigReader::readConfig(filename);
     }
+
+    void processCommands() {
+        while (true) {
+            string command;
+            cout << "Enter command: ";
+            getline(cin, command);
+
+            istringstream iss(command);
+            string cmd;
+            iss >> cmd;
+
+            if (cmd == "exit") {
+                cout << "Exiting...\n";
+                break;
+            } else if (cmd == "check") {
+                checkAvailability(iss);
+            } else if (cmd == "") {
+
+            } else {
+                cout << "Invalid command. Try again.\n";
+            }
+        }
+    }
+
+private:
+    void checkAvailability(istringstream& iss) {
+        string flightDate, flightNumber;
+        iss >> flightDate >> flightNumber;
+
+        bool flightFound = false;
+
+        for (const auto& airplane : airplanes) {
+            if (airplane.getDate() == flightDate && airplane.getFlight() == flightNumber) {
+                flightFound = true;
+
+                cout << "Available seats for Flight " << flightNumber << " on " << flightDate << ":\n";
+
+                vector<Seat> seats = airplane.getSeats();
+
+                for (const auto& seat : seats) {
+                    if (!seat.getIsBooked()) {
+                        cout << seat.getSeatNumber() << " $" << seat.getPrice() << "\n";
+                    }
+                }
+                break;
+            }
+        }
+
+        if (!flightFound) {
+            cout << "Flight not found.\n";
+        }
+    }
+};
+
+
+int main() {
+    Processes processes;
+    processes.initialize();
+    processes.processCommands();
 
     return 0;
 }
