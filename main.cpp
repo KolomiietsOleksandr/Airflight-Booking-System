@@ -4,6 +4,7 @@
 #include <vector>
 #include <sstream>
 #include <tuple>
+#include <cstdlib>
 
 using namespace std;
 
@@ -66,9 +67,18 @@ public:
         return seats;
     }
 
+    bool bookSeat(const string& seatNumber) {
+        for (auto& seat : seats) {
+            if (seat.getSeatNumber() == seatNumber && !seat.getIsBooked()) {
+                seat.bookSeat();
+                return true;
+            }
+        }
+        return false;
+    }
+
 private:
     void createSeats(const vector<tuple<int, int, int>>& seatPriceRanges) {
-
         for (const auto& range : seatPriceRanges) {
             int start = get<0>(range);
             int end = get<1>(range);
@@ -190,8 +200,8 @@ public:
                 break;
             } else if (cmd == "check") {
                 checkAvailability(iss);
-            } else if (cmd == "") {
-
+            } else if (cmd == "book") {
+                bookTicket(iss);
             } else {
                 cout << "Invalid command. Try again.\n";
             }
@@ -226,8 +236,33 @@ private:
             cout << "Flight not found.\n";
         }
     }
-};
 
+    void bookTicket(istringstream& iss) {
+        string flightDate, flightNumber, seatNumber, passengerName;
+        iss >> flightDate >> flightNumber >> seatNumber >> passengerName;
+
+        bool flightFound = false;
+        int ticketId = rand() % 10000 + 1;  // Generate a random ticket ID
+
+        for (auto& airplane : airplanes) {
+            if (airplane.getDate() == flightDate && airplane.getFlight() == flightNumber) {
+                flightFound = true;
+
+                if (airplane.bookSeat(seatNumber)) {
+                    Ticket ticket(flightNumber, flightDate, seatNumber, passengerName, ticketId);
+                    ticket.displayTicketInfo();
+                } else {
+                    cout << "Seat " << seatNumber << " is already booked.\n";
+                }
+                break;
+            }
+        }
+
+        if (!flightFound) {
+            cout << "Flight not found.\n";
+        }
+    }
+};
 
 int main() {
     Processes processes;
