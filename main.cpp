@@ -83,7 +83,7 @@ public:
         cout << "Seat Number: " << seatNumber << "\n";
         cout << "Price: $" << price << "\n";
         cout << "Passenger Name: " << passengerName << "\n";
-        cout << "Ticket ID: " << ticketId << "\n";
+        cout << "Ticket ID: " << ticketId << "\n" << "\n";
     }
 
     int getPrice() const {
@@ -243,7 +243,14 @@ public:
             } else if (cmd == "return") {
                 returnTicket(iss);
             } else if (cmd == "view") {
-                viewTicket(iss);
+                string param;
+                iss >> param;
+
+                if (isNumeric(param)) {
+                    viewTicketByID(atoi(param.c_str()));
+                } else {
+                    viewUserTickets(param);
+                }
             } else {
                 cout << "Invalid command. Try again.\n";
             }
@@ -332,10 +339,11 @@ private:
         }
     }
 
-    void viewTicket(istringstream& iss) {
-        int ticketId;
-        iss >> ticketId;
+    bool isNumeric(const string& str) {
+        return all_of(str.begin(), str.end(), ::isdigit);
+    }
 
+    void viewTicketByID(int ticketId) {
         bool ticketFound = false;
 
         for (const auto& airplane : airplanes) {
@@ -350,6 +358,23 @@ private:
 
         if (!ticketFound) {
             cout << "Ticket with ID " << ticketId << " not found.\n";
+        }
+    }
+
+    void viewUserTickets(const string& username) {
+        bool userFound = false;
+
+        for (const auto& airplane : airplanes) {
+            for (const auto& ticket : airplane.getTickets()) {
+                if (ticket.getPassengerName() == username) {
+                    userFound = true;
+                    ticket.displayTicketInfo();
+                }
+            }
+        }
+
+        if (!userFound) {
+            cout << "No tickets found for user " << username << ".\n";
         }
     }
 };
