@@ -5,6 +5,7 @@
 #include <sstream>
 #include <tuple>
 #include <cstdlib>
+#include <algorithm>
 
 using namespace std;
 
@@ -48,11 +49,12 @@ private:
     string date;
     string seatNumber;
     string passengerName;
+    int price;
     int ticketId;
 
 public:
-    Ticket(const string& flight, const string& ticketDate, const string& seat, const string& passenger, int id)
-            : flightNumber(flight), date(ticketDate), seatNumber(seat), passengerName(passenger), ticketId(id) {}
+    Ticket(const string& flight, const string& ticketDate, const string& seat, const string& passenger, int id, int price)
+            : flightNumber(flight), date(ticketDate), seatNumber(seat), passengerName(passenger), ticketId(id), price(price) {}
 
     string getFlight() const {
         return flightNumber;
@@ -79,8 +81,13 @@ public:
         cout << "Flight Number: " << flightNumber << "\n";
         cout << "Date: " << date << "\n";
         cout << "Seat Number: " << seatNumber << "\n";
+        cout << "Price: $" << price << "\n";
         cout << "Passenger Name: " << passengerName << "\n";
         cout << "Ticket ID: " << ticketId << "\n";
+    }
+
+    int getPrice() const {
+        return price;
     }
 };
 
@@ -118,13 +125,36 @@ public:
         for (auto& seat : seats) {
             if (seat.getSeatNumber() == seatNumber && !seat.getIsBooked()) {
                 seat.bookSeat();
-                ticketId = rand() % 10000 + 1;  // Generate a random ticket ID
-                Ticket ticket(flightNumber, date, seatNumber, passengerName, ticketId);
+                ticketId = rand() % 10000 + 1;  // Генеруємо випадковий ідентифікатор квитка
+                Ticket ticket(flightNumber, date, seatNumber, passengerName, ticketId, seat.getPrice());
                 tickets.push_back(ticket);
                 return true;
             }
         }
         return false;
+    }
+
+    bool returnTicket(int ticketId) {
+        auto ticketIt = find_if(tickets.begin(), tickets.end(), [ticketId](const Ticket& t) {
+            return t.getID() == ticketId;
+        });
+
+        if (ticketIt != tickets.end()) {
+            cout << "Confirmed $" << ticketIt->getPrice() << " refund for " << ticketIt->getPassengerName() << "\n";
+
+            for (auto& seat : seats) {
+                if (seat.getSeatNumber() == ticketIt->getSeatNum()) {
+                    seat.freeSeat();
+                    break;
+                }
+            }
+
+            tickets.erase(ticketIt);
+            return true;
+        } else {
+            cout << "Ticket with ID " << ticketId << " not found.\n";
+            return false;
+        }
     }
 
 private:
@@ -210,6 +240,8 @@ public:
                 checkAvailability(iss);
             } else if (cmd == "book") {
                 bookTicket(iss);
+            } else if (cmd == "return") {
+                returnTicket(iss);
             } else {
                 cout << "Invalid command. Try again.\n";
             }
@@ -255,7 +287,6 @@ private:
         }
     }
 
-
     void bookTicket(istringstream& iss) {
         string flightDate, flightNumber, seatNumber, passengerName;
         iss >> flightDate >> flightNumber >> seatNumber >> passengerName;
@@ -278,6 +309,24 @@ private:
 
         if (!flightFound) {
             cout << "Flight not found.\n";
+        }
+    }
+
+    void returnTicket(istringstream& iss) {
+        int ticketId;
+        iss >> ticketId;
+
+        bool ticketReturned = false;
+
+        for (auto& airplane : airplanes) {
+            if (airplane.returnTicket(ticketId)) {
+                ticketReturned = true;
+                break;
+            }
+        }
+
+        if (!ticketReturned) {
+            cout << "Ticket return failed.\n";
         }
     }
 };
