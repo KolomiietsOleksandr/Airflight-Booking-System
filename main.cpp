@@ -125,7 +125,7 @@ public:
         for (auto& seat : seats) {
             if (seat.getSeatNumber() == seatNumber && !seat.getIsBooked()) {
                 seat.bookSeat();
-                ticketId = rand() % 10000 + 1;  // Генеруємо випадковий ідентифікатор квитка
+                ticketId = rand() % 10000 + 1;
                 Ticket ticket(flightNumber, date, seatNumber, passengerName, ticketId, seat.getPrice());
                 tickets.push_back(ticket);
                 return true;
@@ -242,6 +242,8 @@ public:
                 bookTicket(iss);
             } else if (cmd == "return") {
                 returnTicket(iss);
+            } else if (cmd == "view") {
+                viewTicket(iss);
             } else {
                 cout << "Invalid command. Try again.\n";
             }
@@ -327,6 +329,27 @@ private:
 
         if (!ticketReturned) {
             cout << "Ticket return failed.\n";
+        }
+    }
+
+    void viewTicket(istringstream& iss) {
+        int ticketId;
+        iss >> ticketId;
+
+        bool ticketFound = false;
+
+        for (const auto& airplane : airplanes) {
+            for (const auto& ticket : airplane.getTickets()) {
+                if (ticket.getID() == ticketId) {
+                    ticketFound = true;
+                    ticket.displayTicketInfo();
+                    break;
+                }
+            }
+        }
+
+        if (!ticketFound) {
+            cout << "Ticket with ID " << ticketId << " not found.\n";
         }
     }
 };
