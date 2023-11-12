@@ -18,6 +18,23 @@ private:
 public:
     Seat(string number, int seatPrice) : seatNumber(number), price(seatPrice), isBooked(false) {}
 
+    Seat(const Seat& other) : seatNumber(other.seatNumber), price(other.price), isBooked(other.isBooked) {}
+
+    Seat(Seat&& other) noexcept : seatNumber(move(other.seatNumber)), price(other.price), isBooked(other.isBooked) {}
+
+    Seat& operator=(Seat&& other) noexcept {
+        if (this != &other) {
+            seatNumber = move(other.seatNumber);
+            price = other.price;
+            isBooked = other.isBooked;
+            
+            other.isBooked = false;
+            other.seatNumber = "";
+            other.price = 0;
+        }
+        return *this;
+    }
+
     string getSeatNumber() const {
         return seatNumber;
     }
@@ -55,6 +72,34 @@ private:
 public:
     Ticket(const string& flight, const string& ticketDate, const string& seat, const string& passenger, int id, int price)
             : flightNumber(flight), date(ticketDate), seatNumber(seat), passengerName(passenger), ticketId(id), price(price) {}
+
+    Ticket(const Ticket& other)
+            : flightNumber(other.flightNumber), date(other.date), seatNumber(other.seatNumber),
+              passengerName(other.passengerName), ticketId(other.ticketId), price(other.price) {}
+
+    Ticket(Ticket&& other) noexcept
+            : flightNumber(move(other.flightNumber)), date(move(other.date)), seatNumber(move(other.seatNumber)),
+              passengerName(move(other.passengerName)), ticketId(other.ticketId), price(other.price) {
+    }
+
+    Ticket& operator=(Ticket&& other) noexcept {
+        if (this != &other) {
+            flightNumber = move(other.flightNumber);
+            date = move(other.date);
+            seatNumber = move(other.seatNumber);
+            passengerName = move(other.passengerName);
+            ticketId = other.ticketId;
+            price = other.price;
+
+            other.ticketId = -1;
+            other.flightNumber = "";
+            other.date = "";
+            other.seatNumber = "";
+            other.passengerName = "";
+            other.price = 0;
+        }
+        return *this;
+    }
 
     string getFlight() const {
         return flightNumber;
@@ -306,7 +351,7 @@ private:
         for (auto& airplane : airplanes) {
             if (airplane.getDate() == flightDate && airplane.getFlight() == flightNumber) {
                 flightFound = true;
-                
+
                 for (const auto& bookedTicket : airplane.getTickets()) {
                     if (bookedTicket.getSeatNum() == seatNumber) {
                         cout << "Seat " << seatNumber << " is already booked.\n";
